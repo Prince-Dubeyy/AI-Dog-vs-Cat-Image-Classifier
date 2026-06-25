@@ -3,9 +3,10 @@ import io
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 from PIL import Image, UnidentifiedImageError
 import tensorflow as tf
 import numpy as np
@@ -16,6 +17,19 @@ logger = logging.getLogger(__name__)
 
 # Global model variable
 model = None
+
+# TASK 3: Robust CORS parsing from environment
+raw_frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173,http://localhost:3000")
+allowed_origins = [
+    origin.strip().rstrip('/') # Also strip trailing slashes defensively
+    for origin in raw_frontend_url.split(",")
+    if origin.strip()
+]
+
+# TASK 4: Add temporary debugging during startup
+logger.info(f"Loaded FRONTEND_URL: {raw_frontend_url}")
+logger.info(f"Loaded allowed_origins: {allowed_origins}")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,16 +48,60 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Dog vs Cat Classifier API", lifespan=lifespan)
 
-# CORS Configuration
-# Allow localhost for development and an environment variable for production
-ALLOWED_ORIGINS = os.getenv("FRONTEND_URL", "http://localhost:5173,http://localhost:3000").split(",")
+# TASK 8: Verify middleware ordering (CORS added first, executes outermost)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[origin.strip() for origin in ALLOWED_ORIGINS if origin.strip()],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
+
+# TASK 7: Global exception handlers to inject CORS headers manually if needed
+# Note: CORSMiddleware usually handles this, but explicit handlers guarantee it
+def get_cors_headers(request: Request):
+    origin = request.headers.get("origin")
+    if origin and (origin in allowed_origins or "*" in allowed_origins):
+        return {"Access-Control-Allow-Origin": origin}
+    return {}
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    headers = get_cors_headers(request)
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers=headers
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    headers = get_cors_headers(request)
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors()},
+        headers=headers
+    )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    headers = get_cors_headers(request)
+    logger.exception(f"Unhandled exception: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "An internal server error occurred while processing the request."},
+        headers=headers
+    )
+
+# TASK 5: Add /debug/cors endpoint
+@app.get("/debug/cors")
+async def debug_cors():
+    return {
+        "allowed_origins": allowed_origins,
+        "frontend_env": raw_frontend_url,
+        "environment": "production"
+    }
 
 @app.get("/")
 async def root():
