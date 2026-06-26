@@ -2,11 +2,11 @@
 
 An AI-powered web application that classifies uploaded images as either **Dog** or **Cat** using a Deep Learning model built with TensorFlow and served through a FastAPI backend.
 
-The application provides a modern React frontend where users can upload an image and receive an instant prediction with confidence scores.
+Users can upload an image through a modern React interface and receive an instant AI prediction with confidence scores.
 
 ---
 
-## 🚀 Live Demo
+# 🚀 Live Demo
 
 ### Frontend (Vercel)
 
@@ -18,22 +18,22 @@ https://ai-dog-vs-cat-image-classifier-1.onrender.com
 
 ---
 
-# 📌 Features
+# ✨ Features
 
-- Upload Dog or Cat images
-- AI-powered image classification
+- AI-powered Dog vs Cat image classification
+- Deep Learning model using TensorFlow/Keras
 - FastAPI REST API
-- TensorFlow/Keras Deep Learning model
+- Modern React + Vite frontend
 - Drag & Drop image upload
 - Responsive UI
-- CORS-enabled backend
-- Production deployment using Render & Vercel
+- Real-time prediction with confidence score
+- Production deployment using Vercel & Render
 
 ---
 
 # 🛠️ Tech Stack
 
-## Frontend
+### Frontend
 
 - React
 - Vite
@@ -41,20 +41,20 @@ https://ai-dog-vs-cat-image-classifier-1.onrender.com
 - Tailwind CSS
 - Axios
 
-## Backend
+### Backend
 
 - Python
 - FastAPI
-- Uvicorn
 - TensorFlow
 - Keras
+- Uvicorn
 - Pillow
 - NumPy
 
-## Deployment
+### Deployment
 
-- Vercel (Frontend)
-- Render (Backend)
+- Vercel
+- Render
 
 ---
 
@@ -82,81 +82,19 @@ AI-Dog-vs-Cat-Image-Classifier
 
 ---
 
-# ⚙️ Installation
+# 🧠 Model Information
 
-## Clone Repository
-
-```bash
-git clone https://github.com/Prince-Dubeyy/AI-Dog-vs-Cat-Image-Classifier.git
-
-cd AI-Dog-vs-Cat-Image-Classifier
-```
+- Framework: TensorFlow / Keras
+- Task: Binary Image Classification
+- Classes:
+  - 🐶 Dog
+  - 🐱 Cat
 
 ---
 
-# Backend Setup
+# 🌐 API Endpoint
 
-```bash
-cd backend
-
-python -m venv venv
-
-venv\Scripts\activate      # Windows
-
-pip install -r requirements.txt
-
-uvicorn main:app --reload
-```
-
-Backend runs on
-
-```
-http://127.0.0.1:8000
-```
-
----
-
-# Frontend Setup
-
-```bash
-cd frontend
-
-npm install
-
-npm run dev
-```
-
-Frontend runs on
-
-```
-http://localhost:5173
-```
-
----
-
-# Environment Variables
-
-## Frontend (.env)
-
-```env
-VITE_API_URL=http://127.0.0.1:8000
-```
-
-Production
-
-```env
-VITE_API_URL=https://ai-dog-vs-cat-image-classifier-1.onrender.com
-```
-
----
-
-# API Endpoint
-
-## Predict Image
-
-```
-POST /predict
-```
+## POST `/predict`
 
 Upload an image and receive:
 
@@ -169,73 +107,49 @@ Upload an image and receive:
 
 ---
 
-# Model Information
+# 📸 Screenshots
 
-- Deep Learning CNN Model
-- TensorFlow / Keras
-- Binary Classification
-- Classes:
-  - Dog
-  - Cat
+## Home Page
 
----
+(Add your screenshot here)
 
-# Deployment
+## Prediction Result
 
-## Frontend
-
-Hosted on Vercel
-
-https://ai-dog-vs-cat-image-classifier.vercel.app/
-
-## Backend
-
-Hosted on Render
-
-https://ai-dog-vs-cat-image-classifier-1.onrender.com
+(Add your screenshot here)
 
 ---
 
-# Future Improvements
+# 🚀 Deployment
 
-- Mobile Camera Support
-- Multiple Image Prediction
-- Prediction History
-- Top-3 Confidence Scores
-- User Authentication
-- Model Retraining Dashboard
-- Batch Prediction
+| Service | Platform |
+|---------|----------|
+| Frontend | Vercel |
+| Backend | Render |
 
 ---
 
-# Screenshots
+# 🔮 Future Improvements
 
-Add screenshots here:
-
-```
-screenshots/home.png
-screenshots/result.png
-```
+- Multi-class animal classification
+- Mobile camera support
+- Batch image prediction
+- Prediction history
+- User authentication
+- Model retraining pipeline
 
 ---
 
-# Author
+# 👨‍💻 Author
 
 **Prince Dubey**
 
 B.Sc. Data Science & Cyber Security
 
-GitHub
+📧 princeekjmar@gmail.com
 
+GitHub:
 https://github.com/Prince-Dubeyy
-
-Email
-
-princeekjmar@gmail.com
 
 ---
 
-# License
-
-This project is licensed under the MIT License.
-
+# ⭐ If you found this project interesting, consider giving it a Star!
