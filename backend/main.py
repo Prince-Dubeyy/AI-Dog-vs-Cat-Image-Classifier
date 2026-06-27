@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 # Global model variable
 model = None
+ood_model = None
 
 # TASK 3: Robust CORS parsing from environment
 raw_frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173,http://localhost:3000")
@@ -33,7 +34,7 @@ logger.info(f"Loaded allowed_origins: {allowed_origins}")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global model
+    global model, ood_model
     MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "dog_cat_classifier.keras"))
     try:
         logger.info(f"Application starting up... Loading model from {MODEL_PATH}")
@@ -42,9 +43,19 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
         model = None
+        
+    try:
+        logger.info("Loading MobileNetV2 for OOD detection...")
+        ood_model = tf.keras.applications.MobileNetV2(weights='imagenet')
+        logger.info("OOD model loaded successfully.")
+    except Exception as e:
+        logger.error(f"Failed to load OOD model: {e}")
+        ood_model = None
+
     yield
     logger.info("Application shutting down...")
     model = None
+    ood_model = None
 
 app = FastAPI(title="Dog vs Cat Classifier API", lifespan=lifespan)
 
@@ -162,6 +173,30 @@ async def predict(file: UploadFile = File(...)):
         
         # - Expand dimensions
         img_array = np.expand_dims(img_array, axis=0)
+        
+        # --- OOD Detection (Check if image is likely a dog or cat) ---
+        if ood_model is not None:
+            # MobileNetV2 expects 224x224
+            ood_img = tf.image.resize(np.array(image), (224, 224))
+            ood_img = tf.keras.applications.mobilenet_v2.preprocess_input(ood_img)
+            ood_img = np.expand_dims(ood_img, axis=0)
+            ood_preds = ood_model.predict(ood_img)[0]
+            
+            # Check top 3 predictions
+            top_3_classes = np.argsort(ood_preds)[-3:][::-1]
+            found_pet = False
+            for cls in top_3_classes:
+                # ImageNet dog classes: ~151 to 268. Cat classes: ~281 to 285.
+                if (151 <= cls <= 268) or (281 <= cls <= 285):
+                    found_pet = True
+                    break
+            
+            if not found_pet:
+                logger.info(f"OOD detected for {file.filename}. Top classes: {top_3_classes}")
+                return JSONResponse(content={
+                    "prediction": "Neither",
+                    "confidence": 0.0
+                })
         
         # Predict
         prediction_prob = model.predict(img_array)[0][0]

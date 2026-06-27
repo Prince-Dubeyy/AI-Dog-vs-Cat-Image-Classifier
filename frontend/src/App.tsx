@@ -266,7 +266,7 @@ function App() {
                     <div className="prediction-label">Prediction Result</div>
                     <div className="prediction-value">
                       <span className="prediction-emoji" role="img" aria-label={result.prediction.toLowerCase()}>
-                        {result.prediction === 'Dog' ? '🐶' : '🐱'}
+                        {result.prediction === 'Dog' ? '🐶' : result.prediction === 'Cat' ? '🐱' : '❓'}
                       </span>
                       <span className="gradient-text">{result.prediction}</span>
                     </div>
@@ -298,7 +298,9 @@ function App() {
                           {result.confidence >= 90 ? 'High Confidence' : 'Moderate Confidence'}
                         </div>
                         <div className="insight-desc">
-                          {result.confidence >= 90 
+                          {result.prediction === 'Neither'
+                            ? "This image does not appear to be a dog or a cat."
+                            : result.confidence >= 90 
                             ? `The neural network is highly certain that this image contains a ${result.prediction.toLowerCase()}.`
                             : `The network leans towards a ${result.prediction.toLowerCase()}, but some features might be ambiguous or unclear.`}
                         </div>
